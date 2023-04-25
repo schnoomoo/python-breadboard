@@ -2,7 +2,7 @@
 from gpiozero import Button, LED
 from time import sleep
 import random
-
+from time import perf_counter_ns
 # Define variables to GPIO
 led = LED(16)
 player_1 = Button(21)
@@ -28,15 +28,26 @@ while y < time:
 		print("Player 2 pressed too early!!")
 		exit()
 
-# OK - goooooooooooo!!!	
+# OK - goooooooooooo!!!
 led.on()
+start = perf_counter_ns()
 
 while True:
     if player_1.is_pressed:
         print("Player 1 wins!")
+        stop = perf_counter_ns()
         break
     if player_2.is_pressed:
         print("Player 2 wins!")
+        stop = perf_counter_ns()
         break
 
 led.off()
+
+#stating time
+a = "Winning time:"
+b = (stop-start)/1000000
+b = str(b)
+c = " ms"
+
+print(a+b+c)
