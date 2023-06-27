@@ -1,0 +1,13 @@
+from gpiozero import LED
+from time import sleep
+
+gpio5 = LED(22)
+gpio6 = LED(21)
+
+while True:
+    gpio22.on()
+    gpio21.off()
+    sleep(1)
+    gpio22.off()
+    gpio21.on()
+    sleep(1)
