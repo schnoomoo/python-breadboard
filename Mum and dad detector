@@ -1,84 +1,77 @@
-# Importing needed equipment
-import RPi.GPIO as GPIO
-import subprocess
-import time
-import datetime
+# Importing needed functions
+from gpiozero import LED, Buzzer
+import subprocess   # ping functions
+import time         # sleep function
+import datetime     # used for buzzer allowed times
 
 # Define variables
 buzz_start = datetime.time(8, 0, 0)
 buzz_until = datetime.time(21, 0, 0)
 
 # Define the GPIO pins for LEDs and buzzer
-red_led_pin_1 = 1
-green_led_1 = 2
-red_led_2 = 3
-green_led_2 = 4
-buzzer = 5
+dad_red_led_pin = LED(20)
+dad_green_led_pin = LED(21)
+mum_red_led_pin = LED(19)
+mum_green_led_pin = LED(26)
+buzzer_pin = Buzzer(16)
 
 # List of IP addresses to monitor
-dad_address = 10.0.0.40
-mum_address = 10.0.0.41
-# Setup GPIO
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(red_led_pin, GPIO.OUT)
-GPIO.setup(green_led_pin, GPIO.OUT)
-GPIO.setup(buzzer_pin, GPIO.OUT)
+dad_address = "10.0.0.40"
+mum_address = "10.0.0.41"
 
-# Function to check if an IP address is reachable
-def is_ip_reachable():
+# Function to check if the IP address is reachable
+def is_ip_reachable(ip):
     result = subprocess.run(['ping', '-c', '1', ip], capture_output=True)
     return result.returncode == 0
 
+
 # Function to change the LED color and sound the buzzer
-def led_1_green:
-    red_led_1.off()
-    green_led_1.on()
-    if datetime.datetime.now().time() > buzz_start and datetime.datetime.now().time() < buzz_finish:
-        buzzer.on()
+def sound_buzzer():
+    if datetime.datetime.now().time() > buzz_start and datetime.datetime.now().time() < buzz_until:
+        buzzer_pin.on()
         time.sleep(1)
-        buzzer.off
+        buzzer_pin.off()
 
+def dad_led_green():
+    dad_red_led_pin.off()
+    dad_green_led_pin.on()
+    sound_buzzer()
 
-def led_1_red:
-    green_led_1.off()
-    red_led_1.on()
-    if datetime.datetime.now().time() > buzz_start and datetime.datetime.now().time() < buzz_finish:
-        buzzer.on()
-        time.sleep(1)
-        buzzer.off
+def dad_led_red():
+    dad_green_led_pin.off()
+    dad_red_led_pin.on()
+    sound_buzzer()
 
-def led_2_green:
-    red_led_2.off()
-    green_led_2.on()
-    if datetime.datetime.now().time() > buzz_start and datetime.datetime.now().time() < buzz_finish:
-        buzzer.on()
-        time.sleep(1)
-        buzzer.off
+def mum_led_green():
+    mum_red_led_pin.off()
+    mum_green_led_pin.on()
+    sound_buzzer()
 
-def led_2_red:
-    green_led_2.off()
-    red_led_2.on()
-    if datetime.datetime.now().time() > buzz_start and datetime.datetime.now().time() < buzz_finish:
-        buzzer.on()
-        time.sleep(1)
-        buzzer.off
-
+def mum_led_red():
+    mum_green_led_pin.off()
+    mum_red_led_pin.on()
+    sound_buzzer()
 
 # Main loop
+dad_previous_state = None
+mum_previous_state = None
+
 while True:
-    for ip in ip_addresses:
-        previous_state = None
+    # Check Dad
+    dad_current_state = is_ip_reachable(dad_address)
+    if dad_current_state != dad_previous_state:
+        if dad_current_state != 0:
+            dad_led_green()
+        else:
+            dad_led_red()
+    dad_previous_state = dad_current_state
 
-        while True:
-            current_state = is_ip_reachable(ip)
-
-            if current_state != previous_state:
-                change_led_color('red' if current_state else 'green')
-
-                if previous_state is not None:
-                    GPIO.output(buzzer_pin, GPIO.HIGH)
-                    time.sleep(0.5)
-                    GPIO.output(buzzer_pin, GPIO.LOW)
-
-            previous_state = current_state
-            time.sleep(1)  # Wait for 1 second before checking again
+    # Check Mum
+    mum_current_state = is_ip_reachable(mum_address)
+    if mum_current_state != mum_previous_state:
+        if mum_current_state != 0:
+            mum_led_green()
+        else:
+            mum_led_red()
+    mum_previous_state = mum_current_state
+    time.sleep(2)
