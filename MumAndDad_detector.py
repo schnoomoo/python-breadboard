@@ -67,7 +67,6 @@ while True:
     time_since_dad_last_seen = datetime.datetime.now() - dad_last_seen_t
     seconds_since_dad_last_seen = sum(x * float(t) for x, t in zip([1, 60, 3600], reversed(str(time_since_dad_last_seen).split(":"))))
     print("seconds_since_dad_last_seen: " + str(seconds_since_dad_last_seen))
-    print("seconds_since_dad_last_seen > iphone_hibernation_max_s: " + str((seconds_since_dad_last_seen > iphone_hibernation_max_s)))
     if seconds_since_dad_last_seen > iphone_hibernation_max_s and dad_current_led_colour == "red":
         dad_led_green()
         dad_current_led_colour = "green"
