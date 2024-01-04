@@ -17,11 +17,11 @@ dad_last_seen_t = datetime.datetime.now()
 dad_current_led_colour = "red"
 
 # Define the GPIO pins for LEDs and buzzer
-dad_red_led_pin = LED(20)
-dad_green_led_pin = LED(21)
+dad_red_led_pin = LED(2)
+dad_green_led_pin = LED(3)
 mum_red_led_pin = LED(19)
 mum_green_led_pin = LED(26)
-buzzer_pin = Buzzer(16)
+buzzer_pin = Buzzer(4)
 
 # Function to check if the IP address is reachable
 def is_ip_reachable(ip):
