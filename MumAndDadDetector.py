@@ -11,10 +11,12 @@ dad_address = "10.0.0.40"
 mum_address = "10.0.0.41"
 dad_previous_state = None
 mum_previous_state = None
-# iPhone hibernates and goes on/off erratically so need to bracket it, can't use last state being different
-iphone_hibernation_max_s = 300
+# Phones hibernate and goes on/off erratically so need to bracket them, can't use last state being different
+hibernation_max_s = 700
 dad_last_seen_t = datetime.datetime.now()
 dad_current_led_colour = "red"
+mum_last_seen_t = datetime.datetime.now()
+mum_current_led_colour = "red"
 
 # Define the GPIO pins for LEDs and buzzer
 dad_red_led_pin = LED(2)
@@ -58,6 +60,7 @@ def mum_led_red():
 
 # Set Dad to home to start off
 dad_led_red()
+mum_led_red()
 # Start looping
 while True:
     # Check Dad
@@ -66,21 +69,28 @@ while True:
         dad_last_seen_t = datetime.datetime.now()
     time_since_dad_last_seen = datetime.datetime.now() - dad_last_seen_t
     seconds_since_dad_last_seen = sum(x * float(t) for x, t in zip([1, 60, 3600], reversed(str(time_since_dad_last_seen).split(":"))))
-    print("seconds_since_dad_last_seen: " + str(seconds_since_dad_last_seen))
-    if seconds_since_dad_last_seen > iphone_hibernation_max_s and dad_current_led_colour == "red":
+    #if seconds_since_dad_last_seen > hibernation_max_s:
+    #    print("seconds_since_dad_last_seen: " + str(seconds_since_dad_last_seen))
+    if seconds_since_dad_last_seen > hibernation_max_s and dad_current_led_colour == "red":
         dad_led_green()
         dad_current_led_colour = "green"
-    elif seconds_since_dad_last_seen < iphone_hibernation_max_s and dad_current_led_colour == "green":
+    elif seconds_since_dad_last_seen < hibernation_max_s and dad_current_led_colour == "green":
         dad_led_red()
         dad_current_led_colour = "red"
     #dad_previous_state = dad_current_state
 
-    # Check Mum
+    # Check mum
     mum_current_state = is_ip_reachable(mum_address)
-    if mum_current_state != mum_previous_state:
-        if mum_current_state == 0:
-            mum_led_green()
-        else:
-            mum_led_red()
-    mum_previous_state = mum_current_state
-    time.sleep(2)
+    if mum_current_state != 0:
+        mum_last_seen_t = datetime.datetime.now()
+    time_since_mum_last_seen = datetime.datetime.now() - mum_last_seen_t
+    seconds_since_mum_last_seen = sum(x * float(t) for x, t in zip([1, 60, 3600], reversed(str(time_since_mum_last_seen).split(":"))))
+    #if seconds_since_mum_last_seen > hibernation_max_s:
+    #    print("seconds_since_mum_last_seen: " + str(seconds_since_mum_last_seen))
+    if seconds_since_mum_last_seen > hibernation_max_s and mum_current_led_colour == "red":
+        mum_led_green()
+        mum_current_led_colour = "green"
+    elif seconds_since_mum_last_seen < hibernation_max_s and mum_current_led_colour == "green":
+        mum_led_red()
+        mum_current_led_colour = "red"
+    #mum_previous_state = mum_current_state
